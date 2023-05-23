@@ -75,7 +75,11 @@
         <div class="logo">
             <img src= "{% static 'img\logoResize.png' %}" alt="Logo">
         </div>
-        <form>
+        <form name="Painel" id="form_Painel" action="/login/" method="post">
+            {% if msg %}
+                <div class=" alert {{class}}"> {{msg}}</div>
+            {% endif %}
+            {% csrf_token %}
             <div class="form-group">
                 <label for="username">Usuário:</label>
                 <input type="text" id="username" name="username" placeholder="Insira seu nome de usuário">

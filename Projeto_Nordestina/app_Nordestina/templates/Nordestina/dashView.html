@@ -1,0 +1,159 @@
+{% load static %}
+
+<!DOCTYPE html>
+<html lang="pt-br" dir="ltr">
+  <head>
+    <link rel="icon" type="image/x-icon" href="{% static 'img\nIcon.ico' %}">
+    <meta charset="UTF-8">
+    <title>Dashboard</title>
+    <link rel="stylesheet" href="{% static 'css/style2-chart.css' %}">
+    <link href='https://unpkg.com/boxicons@2.0.7/css/boxicons.min.css' rel='stylesheet'>
+    <meta name="viewport" content="width=device-width, initial-scale=1.0">
+  </head>
+  <body>
+    <div class="top-bar">
+      <div class="logo-details">
+        <span class="logo_name">NORDESTINA</span>
+        <div class="logo"><img src="{% static 'img\Waves13.png' %}" alt="Logo"></div>
+      </div>
+    </div>
+    <section class="home-section">
+      <div class="content">
+        <div class="home-content">
+          <div class="container-superior">
+            <div class="chart-container1">
+                <canvas id="chart1"></canvas>
+            </div>
+            <div class="chart-container2">
+                <canvas id="chart2"></canvas>
+            </div>
+          </div>
+          <div class="container-inferior">
+            <div class="chart-container3">
+                <canvas id="chart3"></canvas>
+            </div>
+            <div class="chart-container4">
+                <canvas id="chart4"></canvas>
+            </div>
+            <div class="chart-container5">
+                <canvas id="chart5"></canvas>
+            </div>
+          </div>
+
+          <script src="https://cdn.jsdelivr.net/npm/chart.js"></script>
+          <script>
+          function atualizarGraficos() {
+            // Consulta ao banco de dados
+            var dataDeHoje = new Date();
+            var dataDoMesPassado = new Date(dataDeHoje.getFullYear(), dataDeHoje.getMonth() - 1, 1);
+            var dataFormatada = dataDoMesPassado.toISOString().slice(0, 10);
+
+            with (connections['second_db'].cursor()) {
+              execute(`SELECT v.nomes, SUM(c.vendas) AS total_vendas
+                      FROM contdocs c
+                      LEFT JOIN vendedores v ON c.vendedor = v.codigo
+                      WHERE c.data >= '${dataFormatada}'
+                      GROUP BY v.nomes`);
+              var novoArrayDeDados = [];
+              for (var row in fetchall()) {
+                novoArrayDeDados.push({
+                  nome: row[0],
+                  vendas: row[1]
+                });
+              }
+            }
+
+            // Atualização dos gráficos
+            chart1.data.labels = novoArrayDeDados.map(item => item.nome);
+            chart1.data.datasets[0].data = novoArrayDeDados.map(item => item.vendas);
+            chart1.update();
+
+            chart2.data.labels = novoArrayDeDados.map(item => item.nome);
+            chart2.data.datasets[0].data = novoArrayDeDados.map(item => item.vendas);
+            chart2.update();
+
+            chart3.data.labels = novoArrayDeDados.map(item => item.nome);
+            chart3.data.datasets[0].data = novoArrayDeDados.map(item => item.vendas);
+            chart3.update();
+
+            chart4.data.labels = novoArrayDeDados.map(item => item.nome);
+            chart4.data.datasets[0].data = novoArrayDeDados.map(item => item.vendas);
+            chart4.update();
+
+            chart5.data.labels = novoArrayDeDados.map(item => item.nome);
+            chart5.data.datasets[0].data = novoArrayDeDados.map(item => item.vendas);
+            chart5.update();
+          }
+
+          // 3000 = 3s
+          setInterval(atualizarGraficos, 3000);
+
+          var ctx1 = document.getElementById('chart1').getContext('2d');
+          var chart1 = new Chart(ctx1, {
+            type: 'bar',
+            data: {
+              labels: [],
+              datasets: [{
+                label: 'Chart 1',
+                data: [],
+                backgroundColor: 'rgba(75, 192, 192, 0.2)',
+                borderColor: 'rgba(75, 192, 192, 1)',
+                borderWidth: 1
+              }]
+            },
+            options: {
+              responsive: true,
+              scales: {
+                y: {
+                  beginAtZero: true
+                }
+              }
+            }
+          }
+);
+            var ctx2 = document.getElementById('chart2').getContext('2d');
+            var chart2 = new Chart(ctx2, {
+              type: 'line',
+              data: {
+                labels: ['A', 'B', 'C', 'D', 'E'],
+                datasets: [{
+                  label: 'Chart 2',
+                  data: [50, 40, 30, 20, 10],
+                  backgroundColor: 'rgba(255, 99, 132, 0.2)',
+                  borderColor: 'rgba(255, 99, 132, 1)',
+                  borderWidth: 1
+                }]
+              },
+              options: {
+                responsive: true,
+                scales: {
+                  y: {
+                    beginAtZero: true
+                  }
+                }
+              }
+            });
+
+            var ctx3 = document.getElementById('chart3').getContext('2d');
+            var chart3 = new Chart(ctx3, {
+              type: 'pie',
+              data: {
+                labels: ['A', 'B', 'C', 'D', 'E'],
+                datasets: [{
+                  label: 'Chart 3',
+                  data: [10, 20, 30, 40, 50],
+                  backgroundColor: ['rgba(255, 99, 132, 0.2)', 'rgba(54, 162, 235, 0.2)', 'rgba(255, 206, 86, 0.2)', 'rgba(75, 192, 192, 0.2)', 'rgba(153, 102, 255, 0.2)'],
+                  borderColor: ['rgba(255, 99, 132, 1)', 'rgba(54, 162, 235, 1)', 'rgba(255, 206, 86, 1)', 'rgba(75, 192, 192, 1)', 'rgba(153, 102, 255, 1)'],
+                  borderWidth: 1
+                }]
+              },
+              options: {
+                responsive: true
+              }
+            });
+          </script>
+        </div>
+      </div>
+    </section>
+  </body>
+</html>
